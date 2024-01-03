@@ -2424,7 +2424,7 @@ proc action_selfupdate { action portlist opts } {
         ui_warn "port selfupdate --nosync is deprecated, use --no-sync instead"
         dict set options ports_${action}_no-sync [dict get $options ports_${action}_nosync]
     }
-    if { [catch {macports::selfupdate $options base_updated} result ] } {
+    if { [catch {macports::selfupdate $options selfupdate_status} result] } {
         ui_debug $::errorInfo
         ui_error $result
         if {![macports::ui_isset ports_verbose]} {
@@ -2437,7 +2437,7 @@ proc action_selfupdate { action portlist opts } {
         fatal "port selfupdate failed: $result"
     }
 
-    if {$base_updated} {
+    if {[dict get $selfupdate_status base_updated]} {
         # exit immediately if in batch/shell mode
         return -999
     } else {

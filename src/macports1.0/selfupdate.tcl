@@ -41,10 +41,10 @@ proc selfupdate::main {{options {}} {updatestatusvar {}}} {
            macports::rsync_options macports::autoconf::macports_version \
            macports::autoconf::rsync_path macports::ui_prefix
 
-    # variable that indicates whether we actually updated base
+    # variable that indicates whether we actually updated base and portindex is required
     if {$updatestatusvar ne ""} {
         upvar $updatestatusvar updatestatus
-        set updatestatus no
+        set updatestatus [dict create base_updated no needed_portindex no]
     }
 
     set rsync_url rsync://${rsync_server}/
@@ -250,7 +250,7 @@ proc selfupdate::main {{options {}} {updatestatusvar {}}} {
                 error "Error installing new MacPorts base: $eMessage"
             }
             if {[info exists updatestatus]} {
-                set updatestatus yes
+                dict set updatestatus base_updated yes
             }
         }
     } elseif {$comp < 0} {
@@ -269,6 +269,7 @@ proc selfupdate::main {{options {}} {updatestatusvar {}}} {
     }
 
     if {![dict exists $options ports_selfupdate_no-sync] || ![dict get $options ports_selfupdate_no-sync]} {
+        dict set updatestatus needed_portindex [info exists needed_portindex]
         if {[info exists needed_portindex]} {
             ui_msg "Not all sources could be fully synced using the old version of MacPorts."
             ui_msg "Please run selfupdate again now that MacPorts base has been updated."
